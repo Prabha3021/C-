@@ -1,0 +1,465 @@
+*********EXAM*********
+*Question 6*
+Polymorphism:
+Design a class hierarchy for a simple graphic editor with base class Shape and derived classes Circle, Rectangle, and Triangle.
+ Implement a virtual function draw() in the base class and override it in the derived classes. 
+Write a function that takes a Shape* and calls its draw() method.
+
+*Code*
+#include <iostream>
+using namespace std;
+class Shape {
+public:
+    virtual void draw() const = 0; 
+    virtual ~Shape() = default;
+};
+class Circle : public Shape {
+public:
+    void draw() const override {
+        std::cout << "Drawing a circle." << std::endl;
+    }
+};
+class Rectangle : public Shape {
+public:
+    void draw() const override {
+        std::cout << "Drawing a rectangle." << std::endl;
+    }
+};
+class Triangle : public Shape {
+public:
+    void draw() const override {
+        std::cout << "Drawing a triangle." << std::endl;
+    }
+};
+void drawShape(const Shape& shape) {
+    shape.draw();
+}
+int main() {
+    Circle circle;
+    Rectangle rectangle;
+    Triangle triangle;
+    drawShape(circle);
+    drawShape(rectangle);
+    drawShape(triangle);
+    return 0;
+}
+
+*QUESTION 7*
+Static Members:
+Create a class Account that has a static data member totalAccounts to keep track of the number of accounts created. 
+Implement necessary constructors and destructors to update totalAccounts. 
+Write a function to display the total number of accounts.
+
+*CODE*
+#include <iostream>
+using namespace std;
+class Account {
+public:
+    static int totalAccounts;  
+    Account() {
+        ++totalAccounts;
+    }
+    ~Account() {
+        --totalAccounts;
+    }
+    static void displayTotalAccounts() {
+        std::cout << "Total accounts: " << totalAccounts << std::endl;
+    }
+};
+int Account::totalAccounts = 0;
+int main() {
+    Account acc1;
+    Account acc2;
+    Account::displayTotalAccounts(); 
+    {
+        Account acc3;
+        Account::displayTotalAccounts(); 
+    } 
+    Account::displayTotalAccounts(); 
+    return 0;
+}
+
+*QUESTION 8*
+Friend Functions:
+Implement a class Box that has private data members length, breadth, and height. 
+Write a friend function volume() that calculates and returns the volume of the box. 
+Create objects of Box and use the friend function to compute their volumes.
+
+*CODE*
+#include <iostream>
+using namespace std;
+class Box {
+private:
+    double length;
+    double breadth;
+    double height;
+
+public:
+    Box(double l, double b, double h) : length(l), breadth(b), height(h) {}
+    friend double volume(const Box& b);
+};
+double volume(const Box& b) {
+    return b.length * b.breadth * b.height;
+}
+
+int main() {
+    Box box(3.0, 4.0, 5.0);
+    std::cout << "Volume of the box: " << volume(box) << std::endl; // Output: Volume of the box: 60
+    return 0;
+}
+*QUESTION 9*
+Templates:
+Write a template class Array that can store an array of any data type.
+ Include member functions to perform operations like adding an element, 
+removing an element, and displaying the array. Demonstrate the functionality with different data types.
+
+*CODE*
+#include <iostream>
+using namespace std;
+template <typename T>
+class Array {
+private:
+    T* arr;
+    int size;
+    int capacity;
+public:
+    Array(int cap) : size(0), capacity(cap) {
+        arr = new T[capacity];
+    }
+    ~Array() {
+        delete[] arr;
+    }
+    void addElement(T element) {
+        if (size < capacity) {
+            arr[size++] = element;
+        } else {
+            std::cout << "Array is full. Cannot add element." << std::endl;
+        }
+    }
+    void removeElement() {
+        if (size > 0) {
+            --size;
+        } else {
+            std::cout << "Array is empty. Cannot remove element." << std::endl;
+        }
+    }
+    void display() const {
+        for (int i = 0; i < size; ++i) {
+            std::cout << arr[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+int main() {
+    Array<int> intArray(5);
+    intArray.addElement(1);
+    intArray.addElement(2);
+    intArray.addElement(3);
+    std::cout << "Integer Array: ";
+    intArray.display(); 
+    intArray.removeElement();
+    std::cout << "Integer Array after removal: ";
+    intArray.display(); 
+    Array<double> doubleArray(5);
+    doubleArray.addElement(1.1);
+    doubleArray.addElement(2.2);
+    doubleArray.addElement(3.3);
+    std::cout << "Double Array: ";
+    doubleArray.display(); 
+    doubleArray.removeElement();
+    std::cout << "Double Array after removal: ";
+    doubleArray.display(); 
+    Array<std::string> stringArray(5);
+    stringArray.addElement("Hello");
+    stringArray.addElement("World");
+    stringArray.addElement("!");
+    std::cout << "String Array: ";
+    stringArray.display(); 
+    stringArray.removeElement();
+    std::cout << "String Array after removal: ";
+    stringArray.display(); 
+    return 0;
+}
+*QUESTION 10*
+Pointers:
+Design a class Student with data members name and age. 
+Create an array of Student objects dynamically using pointers. Implement functions to set and display the details of students.
+ Also, write a function to deallocate the memory.
+*CODE*
+#include <iostream>
+#include <string>
+using namespace std;
+class Student {
+private:
+    std::string name;
+    int age;
+public:
+    void setDetails(const std::string& studentName, int studentAge) {
+        name = studentName;
+        age = studentAge;
+    }
+    void displayDetails() const {
+        std::cout << "Name: " << name << ", Age: " << age << std::endl;
+    }
+};
+int main() {
+    int numberOfStudents;
+    std::cout << "Enter the number of students: ";
+    std::cin >> numberOfStudents;
+    Student* students = new Student[numberOfStudents];
+    for (int i = 0; i < numberOfStudents; ++i) {
+        std::string name;
+        int age;
+        std::cout << "Enter name for student " << i + 1 << ": ";
+        std::cin >> name;
+        std::cout << "Enter age for student " << i + 1 << ": ";
+        std::cin >> age;
+        students[i].setDetails(name, age);
+    }
+    std::cout << "\nStudent Details:" << std::endl;
+    for (int i = 0; i < numberOfStudents; ++i) {
+        students[i].displayDetails();
+    }
+    delete[] students;
+    return 0;
+}
+
+*QUESTION 11*
+Polymorphism with Abstract Classes:
+Create an abstract class Animal with a pure virtual function sound(). 
+Derive classes Dog, Cat, and Cow from Animal and override the sound() function in each derived class. 
+Write a program to demonstrate polymorphism using these classes.
+
+*Code*
+#include <iostream>
+using namespace std;
+class Animal {
+public:
+    virtual void sound() const = 0;
+};
+class Dog : public Animal {
+public:
+    void sound() const override {
+        std::cout << "Dog barks" << std::endl;
+    }
+};
+class Cat : public Animal {
+public:
+    void sound() const override {
+        std::cout << "Cat meows" << std::endl;
+    }
+};
+class Cow : public Animal {
+public:
+    void sound() const override {
+        std::cout << "Cow moos" << std::endl;
+    }
+};
+int main() {
+    Dog dog;
+    Cat cat;
+    Cow cow;
+    Animal* animals[] = { &dog, &cat, &cow };
+    for (Animal* animal : animals) {
+        animal->sound();
+    }
+    return 0;
+}
+*QUESTION 12*
+Static Member Functions:
+Implement a class Math that has static member functions for basic mathematical operations like
+ addition, subtraction, multiplication, and division.
+ Demonstrate the use of these functions without creating an object of the class.
+
+*CODE*
+#include <iostream>
+using namespace std;
+class Math {
+public:
+    static int add(int a, int b) {
+        return a + b;
+    }
+    static int subtract(int a, int b) {
+        return a - b;
+    }
+    static int multiply(int a, int b) {
+        return a * b;
+    }
+    static double divide(double a, double b) {
+        if (b != 0.0) {
+            return a / b;
+        } else {
+            std::cerr << "Error: Division by zero!" << std::endl;
+            return 0.0;
+        }
+    }
+};
+
+int main() {
+    std::cout << "Addition: " << Math::add(5, 3) << std::endl;         
+    std::cout << "Subtraction: " << Math::subtract(5, 3) << std::endl; 
+    std::cout << "Multiplication: " << Math::multiply(5, 3) << std::endl; 
+    std::cout << "Division: " << Math::divide(10.0, 2.0) << std::endl;    
+    std::cout << "Division by zero: " << Math::divide(5.0, 0.0) << std::endl; 
+    return 0;
+}
+
+*QUESTION 13*
+Friend Classes:
+Create two classes Alpha and Beta. Make Beta a friend class of Alpha so that it can access private data members of Alpha.
+ Implement functions in Beta to manipulate the private data of Alpha.
+
+*Code*
+#include <iostream>
+using namespace std;
+class Beta;
+class Alpha {
+private:
+    int privateData;
+public:
+    Alpha(int data) : privateData(data) {}
+    void delegateToBeta(Beta& beta, int newData);
+    void displayPrivateData() {
+        std::cout << "Alpha's privateData is: " << privateData << std::endl;
+    }
+    friend class Beta;
+};
+class Beta {
+public:
+    void manipulateAlpha(Alpha& alpha, int newData) {
+        alpha.privateData = newData;
+        std::cout << "Beta manipulated Alpha's privateData to: " << alpha.privateData << std::endl;
+    }
+};
+void Alpha::delegateToBeta(Beta& beta, int newData) {
+    beta.manipulateAlpha(*this, newData);
+}
+
+int main() {
+    Alpha alphaObj(42);
+    Beta betaObj;
+    alphaObj.displayPrivateData();
+    alphaObj.delegateToBeta(betaObj, 99);
+    alphaObj.displayPrivateData();
+    return 0;
+}
+
+*QUESTION 14:
+Class Templates with Multiple Parameters:
+Write a class template Pair that can store a pair of values of any two data types. 
+Include member functions to set and get the values. 
+Demonstrate the usage of this template with different data types.
+
+*CODE*
+#include <iostream>
+#include <string>
+using namespace std;
+template <typename T1, typename T2>
+class Pair {
+private:
+    T1 first;
+    T2 second;
+public:
+    Pair() : first(), second() {}
+    Pair(const T1& f, const T2& s) : first(f), second(s) {}
+    void setPair(const T1& f, const T2& s) {
+        first = f;
+        second = s;
+    }
+    T1 getFirst() const {
+        return first;
+    }
+    T2 getSecond() const {
+        return second;
+    }
+    void displayPair() const {
+        std::cout << "(" << first << ", " << second << ")";
+    }
+};
+
+int main() {
+    Pair<int, int> intPair1;
+    intPair1.setPair(1, 2);
+    std::cout << "Pair of integers (using setPair): ";
+    intPair1.displayPair();
+    std::cout << std::endl;
+    Pair<int, int> intPair2(3, 4);
+    std::cout << "Pair of integers (using constructor with initialization): ";
+    intPair2.displayPair();
+    std::cout << std::endl;
+    Pair<double, std::string> doubleStringPair(3.14, "Hello");
+    std::cout << "Pair of double and string: ";
+    doubleStringPair.displayPair();
+    std::cout << std::endl;
+    Pair<char, bool> charBoolPair('A', true);
+    std::cout << "Pair of char and bool: ";
+    charBoolPair.displayPair();
+    std::cout << std::endl;
+    return 0;
+}
+
+*QUESTION 15*
+Pointer to Objects:
+Define a class Book with data members title and author. Create an array of pointers to Book objects. 
+Write functions to input details for each book, display the details, and search for a book by title.
+
+*CODE*
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+class Book {
+private:
+    std::string title;
+    std::string author;
+public:
+    Book(const std::string& t, const std::string& a) : title(t), author(a) {}
+    void setDetails(const std::string& t, const std::string& a) {
+        title = t;
+        author = a;
+    }
+    void displayDetails() const {
+        std::cout << "Title: " << title << std::endl;
+        std::cout << "Author: " << author << std::endl;
+    }
+    std::string getTitle() const {
+        return title;
+    }
+};
+int main() {
+    std::vector<Book> library; 
+    const int NUM_BOOKS = 5;
+    std::cout << "Enter details for " << NUM_BOOKS << " books:" << std::endl;
+    for (int i = 0; i < NUM_BOOKS; ++i) {
+        std::string title, author;
+        std::cout << "Book " << (i + 1) << " Title: ";
+        std::getline(std::cin, title); 
+        std::cout << "Book " << (i + 1) << " Author: ";
+        std::getline(std::cin, author); 
+        library.emplace_back(title, author);
+    }
+    std::cout << "\nDetails of all books:" << std::endl;
+    for (int i = 0; i < library.size(); ++i) {
+        std::cout << "Book " << (i + 1) << ":" << std::endl;
+        library[i].displayDetails();
+        std::cout << std::endl;
+    }
+    std::string searchTitle;
+    std::cout << "Enter the title of the book to search: ";
+    std::getline(std::cin, searchTitle);
+
+    bool found = false;
+    for (const auto& book : library) {
+        if (book.getTitle() == searchTitle) {
+            std::cout << "\nBook found:" << std::endl;
+            book.displayDetails();
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        std::cout << "\nBook with title \"" << searchTitle << "\" not found." << std::endl;
+    }
+    return 0;
+}
