@@ -1,0 +1,321 @@
+*Question 1*
+Shape Hierarchy with Virtual draw()
+
+Create a base class Shape with a pure virtual function draw() that has no implementation.
+Derive classes like Circle, Square, and Triangle from Shape, 
+each overriding draw() to provide their specific drawing behavior (e.g., using cout for simple output or more advanced graphics libraries).
+Write a main function that creates an array of pointers to Shape objects. Populate the array with instances of derived classes (polymorphism).
+Iterate through the array and call draw() on each pointer using a loop. 
+Observe how the correct draw() implementation is invoked based on the object's type at runtime
+
+*CODE*
+
+#include<iostream>
+#include<vector>
+using namespace std;
+class Shape
+{
+    public:
+    virtual void draw()const = 0;
+    virtual ~Shape() {}
+    
+};
+class Circle: public Shape
+{
+    public:
+    void draw()const override
+    {
+        cout<<"Drawing a Circle"<<endl;
+    }
+};
+class Square : public Shape{
+    public:
+    void draw()const override
+    {
+        cout<<"Drawing a Square"<<endl;
+    }
+};
+class Rectangle: public Shape{
+    public:
+    void draw() const override
+    {
+        cout<<"Drawing a Rectangle"<<endl;
+    }
+};
+class Triangle: public Shape{
+    public:
+    void draw() const override
+    {
+        cout<<"Drawing a Triangle"<<endl;
+    }
+};
+int main()
+{
+    vector<Shape*> shapes;
+    shapes.push_back(new Circle());
+    shapes.push_back(new Square());
+    shapes.push_back(new Rectangle());
+    shapes.push_back(new Triangle());
+    for (Shape* shape:shapes)
+    {
+        shape->draw();
+    }
+    for(Shape* shape :shapes)
+    {
+        delete shape;
+    }
+    return 0;
+    }
+
+*QUESTION 2*
+Abstract Animal Class with Virtual makeSound()
+
+Design an abstract base class Animal with a pure virtual function makeSound() 
+that each derived class must implement differently (e.g., cout for "Meow", "Woof", etc.).
+Create concrete classes Cat, Dog, and potentially others, inheriting from Animal and overriding makeSound().
+In main, create a function playAnimalSound that takes an Animal reference as an argument. I
+nside, call makeSound() on the reference. Demonstrate runtime polymorphism by passing objects 
+of different derived classes to playAnimalSound and observing the correct sound being played.
+
+*CODE*
+
+#include<iostream>
+using namespace std;
+class Animal
+{
+    public:
+    virtual void makeSound() const = 0;
+    virtual ~Animal() {}
+};
+class Cat:public Animal
+{
+    private:
+    void makeSound() const override
+    {
+        cout<<"Meow"<<endl;
+    }
+};
+class Dog:public Animal
+{
+    private:
+    void makeSound() const override
+    {
+        cout<<"Woof"<<endl;
+    }
+};
+class Cow:public Animal
+{
+    private:
+    void makeSound() const override
+    {
+        cout<<"Moo"<<endl;
+    }
+};
+void playAnimalSound(const Animal& animal)
+{
+    animal.makeSound();
+}
+int main()
+{
+    Cat cat;
+    Dog dog;
+    Cow cow;
+    playAnimalSound(cat);
+    playAnimalSound(dog);
+    playAnimalSound(cow);
+    return 0;
+}
+
+*QUESTION 3*
+Area Calculation with Virtual Destructors
+
+Define a base class Shape with a member function area() that returns 0 (since it's a base class). 
+Make Shape abstract using a pure virtual destructor.
+Derive classes Circle, Square, and Triangle, each overriding area() with their specific area calculation formulas.
+In main, create an array of pointers to Shape objects. 
+Allocate memory dynamically for each object using new from the derived classes.
+Iterate through the array and call area() on each pointer. Notice how the appropriate area() 
+implementation is chosen based on the object's type at runtime, even though the array holds Shape pointers.
+Crucially, remember to delete each object using delete to avoid memory leaks.
+ This demonstrates the importance of virtual destructors in polymorphism scenarios with dynamic memory allocation.
+
+*CODE*
+
+#include <iostream>
+#include<cmath>
+using namespace std;
+class Shape {
+public:
+    virtual double area() const {
+        return 0; 
+    }
+    virtual ~Shape() = 0; 
+};
+Shape::~Shape() {}
+class Circle : public Shape {
+public:
+    Circle(double r) : radius(r) {}
+    double area() const override {
+        return M_PI * radius * radius;
+    }
+private:
+    double radius;
+};
+class Square : public Shape {
+public:
+    Square(double s) : side(s) {}
+    double area() const override {
+        return side * side;
+    }
+private:
+    double side;
+};
+class Triangle : public Shape {
+public:
+    Triangle(double b, double h) : base(b), height(h) {}
+    double area() const override {
+        return 0.5 * base * height;
+    }
+private:
+    double base, height;
+};
+class Rectangle : public Shape {
+public:
+    Rectangle(double w, double h) : width(w), height(h) {}
+    double area() const override {
+        return width * height;
+    }
+private:
+    double width, height;
+};
+
+int main() {
+    Shape* shapes[4];
+    shapes[0] = new Circle(4.0);       
+    shapes[1] = new Square(6.0);       
+    shapes[2] = new Triangle(5.0, 7.0); 
+    shapes[3] = new Rectangle(4.0, 6.0); 
+    for (int i = 0; i < 4; ++i) {
+        cout << "Area: " << shapes[i]->area() << endl;
+    }
+    for (int i = 0; i < 4; ++i) {
+        delete shapes[i];
+    }
+    return 0;
+}
+
+*QUESTION 4*
+Virtual Destructor and Slicing
+
+Create a base class Shape with a member variable color and a virtual destructor.
+Derive a class Circle from Shape that adds a member variable radius.
+In main, create a Circle object on the stack and assign it to a Shape reference. Then, delete the reference.
+Explain why this leads to object slicing (the radius member is not deleted) and the importance of virtual destructors in preventing it. 
+Discuss how virtual destructors ensure the complete destruction of derived class objects 
+when accessed through base class pointers or references.
+
+CODE:
+#include <iostream>
+using namespace std;
+class Shape {
+public:
+    Shape(const string& col) : color(col) {}
+    virtual ~Shape() {
+        cout << "Shape destructor called" << endl;
+    }
+    virtual void print() const {
+        cout << "Color: " << color << endl;
+    }
+private:
+    string color;
+};
+class Circle : public Shape {
+public:
+    Circle(const string& col, double r) : Shape(col), radius(r) {}
+    ~Circle() override {
+        cout << "Circle destructor called" << endl;
+    }
+    void print() const override {
+        Shape::print();
+        cout << "Radius: " << radius << endl;
+    }
+private:
+    double radius;
+};
+int main() {
+    Circle circle("Blue", 5.0);
+    Shape& shapeRef = circle;
+    shapeRef.print();
+return 0;
+}
+
+*QUESTION 5*
+
+
+Runtime Type Information (RTTI)
+
+Create base and derived classes with virtual functions.
+In main, use the typeid operator to obtain runtime type information of objects.
+Write a function identifyObject that takes a reference to an object and uses typeid to check if it's of a specific derived class type. 
+Based on the type, perform different actions or print messages.
+Discuss the pros and cons of using RTTI. While it can provide flexibility in certain cases, 
+overuse can sometimes make code less type-safe and harder to maintain. Consider alternative design patterns when possible.
+CODE:
+
+#include <iostream>
+#include <typeinfo> 
+using namespace std;
+class Shape {
+public:
+    virtual void draw() const {
+        cout << "Drawing a shape" << endl;
+    }
+    virtual ~Shape() {}
+};
+class Circle : public Shape {
+public:
+    void draw() const override {
+        cout << "Drawing a circle" << endl;
+    }
+};
+class Square : public Shape {
+public:
+    void draw() const override {
+        cout << "Drawing a square" << endl;
+    }
+};
+class Triangle : public Shape {
+public:
+    void draw() const override {
+        cout << "Drawing a triangle" << endl;
+    }
+};
+void identifyObject(const Shape& shape) {
+    if (const Circle* circle = dynamic_cast<const Circle*>(&shape)) {
+        cout << "Identified a Circle" << endl;
+        circle->draw();
+    } else if (const Square* square = dynamic_cast<const Square*>(&shape)) {
+        cout << "Identified a Square" << endl;
+        square->draw();
+    } else if (const Triangle* triangle = dynamic_cast<const Triangle*>(&shape)) {
+        cout << "Identified a Triangle" << endl;
+        triangle->draw();
+    } else {
+        cout << "Unknown Shape type" << endl;
+    }
+}
+
+int main() {
+    Circle circle;
+    Square square;
+    Triangle triangle;
+    cout << "Type of circle: " << typeid(circle).name() << endl;
+    cout << "Type of square: " << typeid(square).name() << endl;
+    cout << "Type of triangle: " << typeid(triangle).name() << endl;
+    identifyObject(circle);
+    identifyObject(square);
+    identifyObject(triangle);
+
+    return 0;
+}
+
