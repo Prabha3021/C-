@@ -1,0 +1,475 @@
+example 1 
+
+
+#include <iostream>
+#include <memory>
+#include <string>
+#include <stdexcept>
+
+// Implementation of make_unique for C++11
+namespace std {
+    template<typename T, typename... Args>
+    std::unique_ptr<T> make_unique(Args&&... args) {
+        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+}
+
+// Base class
+class Animal {
+public:
+    virtual ~Animal() = default;
+    virtual void makeSound() const = 0;
+    virtual std::string getType() const = 0;
+};
+
+// Derived class Bird
+class Bird : public Animal {
+public:
+    void makeSound() const override {
+        std::cout << "Chirp!" << std::endl;
+    }
+    std::string getType() const override {
+        return "Bird";
+    }
+};
+
+// Derived class Cow
+class Cow : public Animal {
+public:
+    void makeSound() const override {
+        std::cout << "Moo!" << std::endl;
+    }
+    std::string getType() const override {
+        return "Cow";
+    }
+};
+
+// Function to create an animal
+std::unique_ptr<Animal> createAnimal(const std::string& type) {
+    if (type == "Bird") {
+        return std::make_unique<Bird>();
+    } else if (type == "Cow") {
+        return std::make_unique<Cow>();
+    } else {
+        throw std::invalid_argument("Unknown animal type");
+    }
+}
+
+int main() {
+    try {
+        // Create animals
+        std::unique_ptr<Animal> bird = createAnimal("Bird");
+        std::unique_ptr<Animal> cow = createAnimal("Cow");
+        
+        // Print animal sounds
+        if (bird) {
+            std::cout << bird->getType() << " says: ";
+            bird->makeSound();
+        } else {
+            std::cerr << "Bird resource is no longer available" << std::endl;
+        }
+
+        if (cow) {
+            std::cout << cow->getType() << " says: ";
+            cow->makeSound();
+        } else {
+            std::cerr << "Cow resource is no longer available" << std::endl;
+        }
+        
+    } catch (const std::exception& ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+
+    return 0;
+}
+
+example 2
+
+
+#include <iostream>
+#include <random>
+#include <string>
+
+// Function to roll a dice
+int rollDice(int sides) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, sides);
+    return dis(gen);
+}
+
+// Function to flip a coin
+std::string flipCoin() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 1);
+    return dis(gen) == 0 ? "Heads" : "Tails";
+}
+
+// Function to generate a random temperature
+double generateTemperature(double minTemp, double maxTemp) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(minTemp, maxTemp);
+    return dis(gen);
+}
+
+int main() {
+    while (true) {
+        int choice;
+        std::cout << "\nChoose the type of simulation:\n";
+        std::cout << "1. Roll a Dice\n";
+        std::cout << "2. Flip a Coin\n";
+        std::cout << "3. Generate Random Temperature\n";
+        std::cout << "4. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        if (choice == 4) {
+            break;
+        }
+
+        switch (choice) {
+            case 1: {
+                int sides, rolls;
+                std::cout << "Enter the number of sides on the dice: ";
+                std::cin >> sides;
+                if (sides <= 0) {
+                    std::cerr << "Invalid number of sides. Must be greater than 0.\n";
+                    continue;
+                }
+                std::cout << "Enter the number of rolls: ";
+                std::cin >> rolls;
+                if (rolls <= 0) {
+                    std::cerr << "Invalid number of rolls. Must be greater than 0.\n";
+                    continue;
+                }
+                for (int i = 0; i < rolls; ++i) {
+                    int result = rollDice(sides);
+                    std::cout << "Roll " << i + 1 << ": " << result << "\n";
+                }
+                break;
+            }
+            case 2: {
+                int flips;
+                std::cout << "Enter the number of flips: ";
+                std::cin >> flips;
+                if (flips <= 0) {
+                    std::cerr << "Invalid number of flips. Must be greater than 0.\n";
+                    continue;
+                }
+                for (int i = 0; i < flips; ++i) {
+                    std::string result = flipCoin();
+                    std::cout << "Flip " << i + 1 << ": " << result << "\n";
+                }
+                break;
+            }
+            case 3: {
+                double minTemp, maxTemp;
+                std::cout << "Enter the minimum temperature: ";
+                std::cin >> minTemp;
+                std::cout << "Enter the maximum temperature: ";
+                std::cin >> maxTemp;
+                if (minTemp >= maxTemp) {
+                    std::cerr << "Invalid temperature range. Minimum temperature must be less than maximum temperature.\n";
+                    continue;
+                }
+                double result = generateTemperature(minTemp, maxTemp);
+                std::cout << "Random temperature: " << result << "°\n";
+                break;
+            }
+            default:
+                std::cerr << "Invalid choice. Please select 1, 2, 3, or 4.\n";
+                break;
+        }
+    }
+
+    std::cout << "Goodbye!\n";
+    return 0;
+}
+
+
+example 3
+
+#include <iostream>
+#include <fstream>
+#include <regex>
+#include <string>
+#include <stdexcept>
+
+// Custom exception class for file errors
+class FileException : public std::runtime_error {
+public:
+    explicit FileException(const std::string& message)
+        : std::runtime_error(message) {}
+};
+
+// Function to open a file for reading
+std::ifstream openInputFile(const std::string& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        throw FileException("Error opening input file: " + filePath);
+    }
+    return file;
+}
+
+// Function to open a file for writing
+std::ofstream openOutputFile(const std::string& filePath) {
+    std::ofstream file(filePath);
+    if (!file.is_open()) {
+        throw FileException("Error opening output file: " + filePath);
+    }
+    return file;
+}
+
+// Function to process each line and write matches to the output file
+void processLines(std::ifstream& inputFile, std::ofstream& outputFile, const std::regex& pattern) {
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        if (std::regex_search(line, pattern)) {
+            outputFile << line << std::endl;
+        }
+    }
+
+    if (inputFile.bad()) {
+        throw FileException("Error reading from input file.");
+    }
+    if (outputFile.bad()) {
+        throw FileException("Error writing to output file.");
+    }
+}
+
+int main() {
+    std::string inputFilePath = "log.txt";
+    std::string outputFilePath = "error_log.txt";
+    std::regex errorPattern(R"((ERROR|WARNING|CRITICAL):\s+.*)");
+
+    try {
+        std::ifstream inputFile = openInputFile(inputFilePath);
+        std::ofstream outputFile = openOutputFile(outputFilePath);
+        
+        processLines(inputFile, outputFile, errorPattern);
+        
+        std::cout << "Log file processed successfully. Check " << outputFilePath << " for results." << std::endl;
+    } catch (const FileException& e) {
+        std::cerr << "File error: " << e.what() << std::endl;
+    } catch (const std::regex_error& e) {
+        std::cerr << "Regex error: " << e.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Unexpected error: " << e.what() << std::endl;
+    }
+
+    return 0;
+}
+
+example 4 
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <functional>
+#include <iterator>
+
+// A class representing a large data object (e.g., an image or scientific data)
+class LargeData {
+public:
+    LargeData(size_t size) : data(size) {
+        std::cout << "LargeData created with size " << size << std::endl;
+    }
+
+    // Move constructor
+    LargeData(LargeData&& other) noexcept : data(std::move(other.data)) {
+        std::cout << "LargeData moved" << std::endl;
+    }
+
+    // Move assignment operator
+    LargeData& operator=(LargeData&& other) noexcept {
+        if (this != &other) {
+            data = std::move(other.data);
+            std::cout << "LargeData move assigned" << std::endl;
+        }
+        return *this;
+    }
+
+    // Delete copy constructor and copy assignment operator
+    LargeData(const LargeData&) = delete;
+    LargeData& operator=(const LargeData&) = delete;
+
+    void processData(const std::function<void(std::vector<int>&)>& func) {
+        func(data);
+    }
+
+    void printData() const {
+        for (const auto& val : data) {
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    std::vector<int>& getData() {
+        return data;
+    }
+
+private:
+    std::vector<int> data;
+};
+
+// A container class that stores and moves LargeData objects efficiently
+class DataContainer {
+public:
+    using Iterator = std::vector<LargeData>::iterator;
+    using ConstIterator = std::vector<LargeData>::const_iterator;
+
+    void addData(LargeData&& data) {
+        container.push_back(std::move(data));
+    }
+
+    void processDataInContainer(const std::function<void(std::vector<int>&)>& func) {
+        for (auto& data : container) {
+            data.processData(func);
+        }
+    }
+
+    void printContainer() const {
+        for (const auto& data : container) {
+            data.printData();
+        }
+    }
+
+    Iterator begin() { return container.begin(); }
+    Iterator end() { return container.end(); }
+    ConstIterator begin() const { return container.begin(); }
+    ConstIterator end() const { return container.end(); }
+
+private:
+    std::vector<LargeData> container;
+};
+
+int main() {
+    DataContainer dataContainer;
+
+    // Adding large data objects to the container
+    dataContainer.addData(LargeData(10));
+    dataContainer.addData(LargeData(20));
+    dataContainer.addData(LargeData(30));
+
+    // Process data in the container using a lambda function
+    dataContainer.processDataInContainer([](std::vector<int>& data) {
+        std::generate(data.begin(), data.end(), [n = 0]() mutable { return n++; });
+    });
+
+    // Sort data in each LargeData object using a lambda function
+    for (auto& data : dataContainer) {
+        std::sort(data.getData().begin(), data.getData().end(), [](int a, int b) {
+            return a > b;  // Sort in descending order
+        });
+    }
+
+    // Print the processed and sorted data
+    dataContainer.printContainer();
+
+    return 0;
+}
+
+
+example 
+
+#include <iostream>
+#include <map>
+#include <string>
+#include <limits>
+
+// Struct to hold contact details
+struct Contact {
+    std::string phoneNumber;
+    std::string email;
+};
+
+// Function to display the menu
+void displayMenu() {
+    std::cout << "\nContact Manager\n";
+    std::cout << "1. Add Contact\n";
+    std::cout << "2. Search Contact\n";
+    std::cout << "3. Display All Contacts\n";
+    std::cout << "4. Exit\n";
+    std::cout << "Enter your choice: ";
+}
+
+// Function to add a new contact
+void addContact(std::map<std::string, Contact>& contacts) {
+    std::string name, phoneNumber, email;
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear the input buffer
+    std::cout << "Enter contact name: ";
+    std::getline(std::cin, name);
+
+    std::cout << "Enter phone number: ";
+    std::getline(std::cin, phoneNumber);
+
+    std::cout << "Enter email: ";
+    std::getline(std::cin, email);
+
+    contacts[name] = {phoneNumber, email};
+    std::cout << "Contact added successfully!\n";
+}
+
+// Function to search for a contact
+void searchContact(const std::map<std::string, Contact>& contacts) {
+    std::string name;
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear the input buffer
+    std::cout << "Enter contact name to search: ";
+    std::getline(std::cin, name);
+
+    auto it = contacts.find(name);
+    if (it != contacts.end()) {
+        std::cout << "Name: " << it->first << "\n"
+                  << "Phone Number: " << it->second.phoneNumber << "\n"
+                  << "Email: " << it->second.email << "\n";
+    } else {
+        std::cout << "Contact not found.\n";
+    }
+}
+
+// Function to display all contacts
+void displayContacts(const std::map<std::string, Contact>& contacts) {
+    if (contacts.empty()) {
+        std::cout << "No contacts available.\n";
+    } else {
+        for (const auto& pair : contacts) {
+            std::cout << "Name: " << pair.first << "\n"
+                      << "Phone Number: " << pair.second.phoneNumber << "\n"
+                      << "Email: " << pair.second.email << "\n"
+                      << "--------------------------\n";
+        }
+    }
+}
+int main() {
+    std::map<std::string, Contact> contacts;
+    int choice;
+
+    while (true) {
+        displayMenu();
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                addContact(contacts);
+                break;
+            case 2:
+                searchContact(contacts);
+                break;
+            case 3:
+                displayContacts(contacts);
+                break;
+            case 4:
+                std::cout << "Exiting...\n";
+                return 0;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
+                break;
+        }
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+}
